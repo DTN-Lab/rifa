@@ -1,65 +1,82 @@
-import Image from "next/image";
+import { getNumeros } from "@/lib/queries";
+import NumeroGrid from "@/components/NumeroGrid";
+import PremiosTiers from "@/components/PremiosTiers";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function PagePublica() {
+  const numeros = await getNumeros();
+  const vendidos = numeros.filter((n) => n.estado !== "disponible").length;
+  const porcentaje = Math.round((vendidos / 100) * 100);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-rose-400 to-amber-400 text-white px-4 py-10 text-center">
+        <p className="text-sm font-medium uppercase tracking-widest opacity-90 mb-1">
+          Rifa Benéfica
+        </p>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-4">Nuevo Comienzo</h1>
+        <div className="max-w-lg mx-auto bg-white/20 backdrop-blur rounded-2xl p-4 text-sm leading-relaxed">
+          <p>
+            ¡Hola! Somos la <strong>Negra y el Dani</strong>, y estamos viviendo un cambio de
+            hogar inesperado. Decidimos pedir ayuda a quienes más queremos: familia y amigos. Más
+            que los premios, cada número que adquieras es un apoyo enorme que nos ayuda a seguir
+            adelante en esta nueva etapa. ¡Gracias por estar!
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+        {/* Precio y progreso */}
+        <div className="bg-white rounded-2xl shadow-sm border p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-2xl font-bold text-gray-800">$10.000</p>
+              <p className="text-sm text-gray-500">por número</p>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold text-rose-500">{vendidos}/100</p>
+              <p className="text-sm text-gray-500">números vendidos</p>
+            </div>
+          </div>
+          <div className="w-full bg-gray-100 rounded-full h-3">
+            <div
+              className="bg-gradient-to-r from-rose-400 to-amber-400 h-3 rounded-full transition-all"
+              style={{ width: `${porcentaje}%` }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+          <p className="text-xs text-gray-400 mt-1 text-center">{porcentaje}% completado</p>
         </div>
-      </main>
-    </div>
+
+        {/* Grilla de números */}
+        <div className="bg-white rounded-2xl shadow-sm border p-5">
+          <h2 className="font-bold text-gray-800 mb-1">Números disponibles</h2>
+          <div className="flex gap-4 text-xs text-gray-500 mb-4">
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-emerald-200 inline-block" /> Disponible
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-gray-200 inline-block" /> No disponible
+            </span>
+          </div>
+          <NumeroGrid numeros={numeros} />
+        </div>
+
+        {/* Premios */}
+        <div className="bg-white rounded-2xl shadow-sm border p-5">
+          <h2 className="font-bold text-gray-800 mb-4">Premios</h2>
+          <PremiosTiers />
+        </div>
+
+        {/* Contacto */}
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center">
+          <p className="font-semibold text-amber-800 mb-1">¿Querés participar?</p>
+          <p className="text-sm text-amber-700">
+            Contactá directamente a la Negra o al Dani para reservar tu número.
+          </p>
+        </div>
+      </div>
+    </main>
   );
 }
