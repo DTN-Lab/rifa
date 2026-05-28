@@ -23,7 +23,8 @@ export type ResultadoSorteo = {
 
 export const PREMIOS = [
   { nivel: 1, nombre: "Plumón de cama dos plazas" },
-  { nivel: 1, nombre: "Juguera mini Pime" },
+  { nivel: 1, nombre: "Juguera" },
+  { nivel: 1, nombre: "Minipimer" },
   { nivel: 1, nombre: "Hervidor" },
   { nivel: 2, nombre: "Teclado + mouse" },
   { nivel: 2, nombre: "Juego de joyas" },
