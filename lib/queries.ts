@@ -36,7 +36,11 @@ export async function getNumeros(): Promise<Numero[]> {
   const { rows } = await db.execute(
     "SELECT numero, estado, participante_id FROM numeros ORDER BY numero"
   );
-  return rows as unknown as Numero[];
+  return rows.map((r) => ({
+    numero: Number(r.numero),
+    estado: String(r.estado),
+    participante_id: r.participante_id != null ? Number(r.participante_id) : null,
+  }));
 }
 
 export async function getParticipantes(): Promise<Participante[]> {
@@ -47,10 +51,17 @@ export async function getParticipantes(): Promise<Participante[]> {
     "SELECT numero, participante_id FROM numeros WHERE participante_id IS NOT NULL"
   );
 
-  return (parts as unknown as { id: number; nombre: string; telefono: string }[]).map((p) => ({
-    ...p,
-    numeros: (nums as unknown as { numero: number; participante_id: number }[])
-      .filter((n) => n.participante_id === p.id)
+  const numeros = nums.map((r) => ({
+    numero: Number(r.numero),
+    participante_id: Number(r.participante_id),
+  }));
+
+  return parts.map((p) => ({
+    id: Number(p.id),
+    nombre: String(p.nombre),
+    telefono: String(p.telefono),
+    numeros: numeros
+      .filter((n) => n.participante_id === Number(p.id))
       .map((n) => n.numero)
       .sort((a, b) => a - b),
   }));
@@ -65,15 +76,17 @@ export async function getParticipantePorTelefono(
   });
   if (rows.length === 0) return null;
 
-  const p = rows[0] as unknown as { id: number; nombre: string; telefono: string };
+  const p = rows[0];
   const { rows: nums } = await db.execute({
     sql: "SELECT numero FROM numeros WHERE participante_id = ? ORDER BY numero",
     args: [p.id],
   });
 
   return {
-    ...p,
-    numeros: (nums as unknown as { numero: number }[]).map((n) => n.numero),
+    id: Number(p.id),
+    nombre: String(p.nombre),
+    telefono: String(p.telefono),
+    numeros: nums.map((n) => Number(n.numero)),
   };
 }
 
@@ -90,7 +103,7 @@ export async function registrarParticipante(
       args: numeros,
     });
     if (rows.length > 0) {
-      const tomados = (rows as unknown as { numero: number }[]).map((r) => r.numero).join(", ");
+      const tomados = rows.map((r) => Number(r.numero)).join(", ");
       return { ok: false, error: `Los números ${tomados} ya están tomados` };
     }
 
@@ -102,7 +115,7 @@ export async function registrarParticipante(
     });
 
     if (existing.length > 0) {
-      participanteId = (existing[0] as unknown as { id: number }).id;
+      participanteId = Number(existing[0].id);
     } else {
       const result = await db.execute({
         sql: "INSERT INTO participantes (nombre, telefono) VALUES (?, ?)",
@@ -140,7 +153,13 @@ export async function getResultadosSorteo(): Promise<ResultadoSorteo[]> {
     JOIN participantes p ON p.id = r.participante_id
     ORDER BY r.nivel ASC, r.id ASC
   `);
-  return rows as unknown as ResultadoSorteo[];
+  return rows.map((r) => ({
+    numero: Number(r.numero),
+    nombre: String(r.nombre),
+    telefono: String(r.telefono),
+    premio: String(r.premio),
+    nivel: Number(r.nivel),
+  }));
 }
 
 export async function ejecutarSorteo(): Promise<{ ok: boolean; resultados?: ResultadoSorteo[]; error?: string }> {
@@ -152,8 +171,12 @@ export async function ejecutarSorteo(): Promise<{ ok: boolean; resultados?: Resu
     WHERE n.estado = 'pagado'
   `);
 
-  type Row = { numero: number; participante_id: number; nombre: string; telefono: string };
-  const pool: Row[] = rows as unknown as Row[];
+  const pool = rows.map((r) => ({
+    numero: Number(r.numero),
+    participante_id: Number(r.participante_id),
+    nombre: String(r.nombre),
+    telefono: String(r.telefono),
+  }));
 
   if (pool.length < PREMIOS.length) {
     return { ok: false, error: `Se necesitan al menos ${PREMIOS.length} números vendidos para sortear` };
