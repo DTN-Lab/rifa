@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm install @libsql/client 2>&1)",
+      "Bash(mkdir -p \"C:/Users/Daniel/ClaudeCode/Rifa/app/admin/[pin]/sorteo\")",
+      "Bash(mkdir -p \"C:/Users/Daniel/ClaudeCode/Rifa/.claude\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
