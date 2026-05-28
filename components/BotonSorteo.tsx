@@ -7,8 +7,8 @@ type Resultado = {
   numero: number;
   nombre: string;
   telefono: string;
-  premio: string;
   nivel: number;
+  premios: string[];
 };
 
 type Props = {
@@ -17,10 +17,12 @@ type Props = {
 };
 
 const NIVEL_LABELS: Record<number, { label: string; bg: string; icon: string }> = {
-  1: { label: "Nivel 1 — Premios principales", bg: "bg-amber-50 border-amber-300", icon: "🥇" },
-  2: { label: "Nivel 2 — Premios intermedios", bg: "bg-slate-50 border-slate-300", icon: "🥈" },
-  3: { label: "Nivel 3 — Premios especiales", bg: "bg-orange-50 border-orange-200", icon: "🥉" },
+  1: { label: "Grupo 1 — Premios principales", bg: "bg-amber-50 border-amber-300", icon: "🥇" },
+  2: { label: "Grupo 2 — Premios intermedios", bg: "bg-slate-50 border-slate-300", icon: "🥈" },
+  3: { label: "Grupo 3 — Premios especiales", bg: "bg-orange-50 border-orange-200", icon: "🥉" },
 };
+
+const MIN_NUMEROS = 3;
 
 export default function BotonSorteo({ resultadosIniciales, numerosVendidos }: Props) {
   const [resultados, setResultados] = useState<Resultado[]>(resultadosIniciales);
@@ -39,8 +41,6 @@ export default function BotonSorteo({ resultadosIniciales, numerosVendidos }: Pr
     });
   }
 
-  const niveles = [1, 2, 3];
-
   return (
     <div className="space-y-6">
       {/* Botón sorteo */}
@@ -48,7 +48,7 @@ export default function BotonSorteo({ resultadosIniciales, numerosVendidos }: Pr
         <p className="text-gray-600 mb-1">
           <span className="font-bold text-2xl text-gray-800">{numerosVendidos}</span> números vendidos
         </p>
-        <p className="text-sm text-gray-400 mb-5">Se sortearán 8 premios entre los participantes</p>
+        <p className="text-sm text-gray-400 mb-5">Se sortearán 3 ganadores — uno por grupo de premios</p>
 
         {error && (
           <div className="mb-4 bg-red-50 text-red-700 border border-red-200 rounded-lg px-4 py-2 text-sm">
@@ -58,14 +58,14 @@ export default function BotonSorteo({ resultadosIniciales, numerosVendidos }: Pr
 
         <button
           onClick={ejecutar}
-          disabled={isPending || numerosVendidos < 8}
+          disabled={isPending || numerosVendidos < MIN_NUMEROS}
           className="bg-gradient-to-r from-rose-400 to-amber-400 text-white font-bold px-8 py-3 rounded-xl text-lg hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
           {isPending ? "Sorteando..." : resultados.length > 0 ? "Volver a sortear" : "¡Sortear!"}
         </button>
 
-        {numerosVendidos < 8 && (
-          <p className="text-xs text-gray-400 mt-2">Necesitás al menos 8 números vendidos</p>
+        {numerosVendidos < MIN_NUMEROS && (
+          <p className="text-xs text-gray-400 mt-2">Necesitás al menos {MIN_NUMEROS} números vendidos</p>
         )}
       </div>
 
@@ -73,29 +73,27 @@ export default function BotonSorteo({ resultadosIniciales, numerosVendidos }: Pr
       {resultados.length > 0 && (
         <div className="space-y-4">
           <h2 className="font-bold text-gray-800 text-lg">Resultados del sorteo</h2>
-          {niveles.map((nivel) => {
-            const ganadores = resultados.filter((r) => r.nivel === nivel);
-            if (ganadores.length === 0) return null;
-            const { label, bg, icon } = NIVEL_LABELS[nivel];
+          {resultados.map((g) => {
+            const { label, bg, icon } = NIVEL_LABELS[g.nivel];
             return (
-              <div key={nivel} className={`border rounded-2xl p-4 ${bg}`}>
-                <p className="font-semibold text-gray-700 mb-3">
-                  {icon} {label}
-                </p>
-                <div className="space-y-2">
-                  {ganadores.map((g) => (
-                    <div
-                      key={g.numero}
-                      className="bg-white rounded-xl p-3 flex items-center justify-between shadow-sm"
-                    >
-                      <div>
-                        <p className="font-bold text-gray-800">{g.nombre}</p>
-                        <p className="text-xs text-gray-500">{g.telefono}</p>
-                        <p className="text-sm text-gray-600 mt-0.5">{g.premio}</p>
-                      </div>
-                      <div className="text-3xl font-black text-rose-400">#{g.numero}</div>
+              <div key={g.nivel} className={`border rounded-2xl p-4 ${bg}`}>
+                <p className="font-semibold text-gray-700 mb-3">{icon} {label}</p>
+                <div className="bg-white rounded-xl p-4 shadow-sm">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="font-bold text-gray-800 text-lg">{g.nombre}</p>
+                      <p className="text-xs text-gray-500">{g.telefono}</p>
                     </div>
-                  ))}
+                    <div className="text-3xl font-black text-rose-400">#{g.numero}</div>
+                  </div>
+                  <ul className="space-y-1">
+                    {g.premios.map((premio) => (
+                      <li key={premio} className="text-sm text-gray-600 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-300 inline-block flex-shrink-0" />
+                        {premio}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             );

@@ -8,6 +8,13 @@ export const db = createClient({
 });
 
 export async function initDB() {
+  // Migración: recrear resultados_sorteo si tiene el esquema viejo (con columna premio)
+  const { rows: cols } = await db.execute("PRAGMA table_info(resultados_sorteo)");
+  const tieneColumnaVieja = cols.some((c) => String(c.name) === "premio");
+  if (tieneColumnaVieja) {
+    await db.execute("DROP TABLE resultados_sorteo");
+  }
+
   await db.executeMultiple(`
     CREATE TABLE IF NOT EXISTS participantes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,7 +33,6 @@ export async function initDB() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       numero INTEGER NOT NULL,
       participante_id INTEGER NOT NULL,
-      premio TEXT NOT NULL,
       nivel INTEGER NOT NULL,
       sorteado_en DATETIME DEFAULT CURRENT_TIMESTAMP
     );

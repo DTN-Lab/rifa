@@ -17,8 +17,8 @@ export type ResultadoSorteo = {
   numero: number;
   nombre: string;
   telefono: string;
-  premio: string;
   nivel: number;
+  premios: string[];
 };
 
 export const PREMIOS = [
@@ -148,18 +148,21 @@ export async function liberarNumero(numero: number): Promise<void> {
 
 export async function getResultadosSorteo(): Promise<ResultadoSorteo[]> {
   const { rows } = await db.execute(`
-    SELECT r.numero, p.nombre, p.telefono, r.premio, r.nivel
+    SELECT r.numero, p.nombre, p.telefono, r.nivel
     FROM resultados_sorteo r
     JOIN participantes p ON p.id = r.participante_id
-    ORDER BY r.nivel ASC, r.id ASC
+    ORDER BY r.nivel ASC
   `);
-  return rows.map((r) => ({
-    numero: Number(r.numero),
-    nombre: String(r.nombre),
-    telefono: String(r.telefono),
-    premio: String(r.premio),
-    nivel: Number(r.nivel),
-  }));
+  return rows.map((r) => {
+    const nivel = Number(r.nivel);
+    return {
+      numero: Number(r.numero),
+      nombre: String(r.nombre),
+      telefono: String(r.telefono),
+      nivel,
+      premios: PREMIOS.filter((p) => p.nivel === nivel).map((p) => p.nombre),
+    };
+  });
 }
 
 export async function ejecutarSorteo(): Promise<{ ok: boolean; resultados?: ResultadoSorteo[]; error?: string }> {
@@ -178,8 +181,10 @@ export async function ejecutarSorteo(): Promise<{ ok: boolean; resultados?: Resu
     telefono: String(r.telefono),
   }));
 
-  if (pool.length < PREMIOS.length) {
-    return { ok: false, error: `Se necesitan al menos ${PREMIOS.length} números vendidos para sortear` };
+  const niveles = [1, 2, 3];
+
+  if (pool.length < niveles.length) {
+    return { ok: false, error: `Se necesitan al menos ${niveles.length} números vendidos para sortear` };
   }
 
   // Limpiar sorteos anteriores
@@ -188,22 +193,22 @@ export async function ejecutarSorteo(): Promise<{ ok: boolean; resultados?: Resu
   const resultados: ResultadoSorteo[] = [];
   const usados = new Set<number>();
 
-  for (const premio of PREMIOS) {
+  for (const nivel of niveles) {
     const disponibles = pool.filter((r) => !usados.has(r.numero));
     const ganador = disponibles[Math.floor(Math.random() * disponibles.length)];
     usados.add(ganador.numero);
 
     await db.execute({
-      sql: "INSERT INTO resultados_sorteo (numero, participante_id, premio, nivel) VALUES (?, ?, ?, ?)",
-      args: [ganador.numero, ganador.participante_id, premio.nombre, premio.nivel],
+      sql: "INSERT INTO resultados_sorteo (numero, participante_id, nivel) VALUES (?, ?, ?)",
+      args: [ganador.numero, ganador.participante_id, nivel],
     });
 
     resultados.push({
       numero: ganador.numero,
       nombre: ganador.nombre,
       telefono: ganador.telefono,
-      premio: premio.nombre,
-      nivel: premio.nivel,
+      nivel,
+      premios: PREMIOS.filter((p) => p.nivel === nivel).map((p) => p.nombre),
     });
   }
 
