@@ -95,6 +95,12 @@ export default async function PagePublica() {
           </div>
         </div>
 
+        {/* Fecha del sorteo */}
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-5 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-rose-400 mb-1">Fecha del sorteo</p>
+          <p className="text-2xl font-bold text-rose-600">Lunes 20 de julio, 2026</p>
+        </div>
+
         {/* Contacto */}
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center">
           <p className="font-semibold text-amber-800 mb-1">¿Querés participar?</p>
