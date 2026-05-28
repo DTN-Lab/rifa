@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import {
   registrarParticipante,
   liberarNumero,
+  eliminarParticipante,
   ejecutarSorteo,
   getParticipantePorTelefono,
 } from "@/lib/queries";
@@ -46,6 +47,12 @@ export async function actionEjecutarSorteo() {
     revalidatePath(`/admin/${process.env.ADMIN_PIN}/sorteo`);
   }
   return resultado;
+}
+
+export async function actionEliminarParticipante(id: number) {
+  await eliminarParticipante(id);
+  revalidatePath("/");
+  revalidatePath(`/admin/${process.env.ADMIN_PIN}`);
 }
 
 export async function actionBuscarPorTelefono(telefono: string) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { actionRegistrar, actionBuscarPorTelefono, actionLiberarNumero } from "@/app/actions";
+import { actionRegistrar, actionBuscarPorTelefono, actionLiberarNumero, actionEliminarParticipante } from "@/app/actions";
 
 type Numero = { numero: number; estado: string };
 type Participante = { id: number; nombre: string; telefono: string; numeros: number[] };
@@ -70,6 +70,13 @@ export default function FormRegistro({ numerosDisponibles, participantes }: Prop
   function handleLiberarNumero(numero: number) {
     startTransition(async () => {
       await actionLiberarNumero(numero);
+    });
+  }
+
+  function handleEliminarParticipante(id: number, nombre: string) {
+    if (!confirm(`¿Eliminar a ${nombre} y liberar todos sus números?`)) return;
+    startTransition(async () => {
+      await actionEliminarParticipante(id);
     });
   }
 
@@ -188,9 +195,19 @@ export default function FormRegistro({ numerosDisponibles, participantes }: Prop
                     <p className="font-semibold text-gray-800">{p.nombre}</p>
                     <p className="text-sm text-gray-500">{p.telefono}</p>
                   </div>
-                  <span className="text-xs bg-rose-100 text-rose-700 font-semibold px-2 py-1 rounded-full">
-                    {p.numeros.length} número{p.numeros.length !== 1 ? "s" : ""}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs bg-rose-100 text-rose-700 font-semibold px-2 py-1 rounded-full">
+                      {p.numeros.length} número{p.numeros.length !== 1 ? "s" : ""}
+                    </span>
+                    <button
+                      onClick={() => handleEliminarParticipante(p.id, p.nombre)}
+                      disabled={isPending}
+                      title="Eliminar participante y liberar todos sus números"
+                      className="text-xs text-red-400 hover:text-red-600 font-medium transition-colors disabled:opacity-50"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {p.numeros.map((n) => (

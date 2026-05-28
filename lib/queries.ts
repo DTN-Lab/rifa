@@ -122,9 +122,31 @@ export async function registrarParticipante(
 }
 
 export async function liberarNumero(numero: number): Promise<void> {
+  const [row] = await sql`
+    SELECT participante_id FROM numeros WHERE numero = ${numero}
+  `;
+  const participanteId = row?.participante_id as number | null;
+
   await sql`
     UPDATE numeros SET participante_id = NULL, estado = 'disponible' WHERE numero = ${numero}
   `;
+
+  if (participanteId) {
+    const [{ total }] = await sql`
+      SELECT COUNT(*) AS total FROM numeros WHERE participante_id = ${participanteId}
+    `;
+    if (Number(total) === 0) {
+      await sql`DELETE FROM participantes WHERE id = ${participanteId}`;
+    }
+  }
+}
+
+export async function eliminarParticipante(id: number): Promise<void> {
+  await sql`
+    UPDATE numeros SET participante_id = NULL, estado = 'disponible'
+    WHERE participante_id = ${id}
+  `;
+  await sql`DELETE FROM participantes WHERE id = ${id}`;
 }
 
 export async function getResultadosSorteo(): Promise<ResultadoSorteo[]> {
