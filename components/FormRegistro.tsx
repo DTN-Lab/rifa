@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default function FormRegistro({ numerosDisponibles, participantes }: Props) {
-  const [telefono, setTelefono] = useState("");
+  const [telefono, setTelefono] = useState(""); // solo los 8 dígitos, sin +569
   const [nombre, setNombre] = useState("");
   const [numerosSeleccionados, setNumerosSeleccionados] = useState<number[]>([]);
   const [participanteExistente, setParticipanteExistente] = useState<Participante | null>(null);
@@ -29,7 +29,7 @@ export default function FormRegistro({ numerosDisponibles, participantes }: Prop
 
   function buscarTelefono() {
     startTransition(async () => {
-      const found = await actionBuscarPorTelefono(telefono.trim());
+      const found = await actionBuscarPorTelefono("+569" + telefono.trim());
       if (found) {
         setParticipanteExistente(found);
         setNombre(found.nombre);
@@ -50,7 +50,7 @@ export default function FormRegistro({ numerosDisponibles, participantes }: Prop
     }
     const fd = new FormData();
     fd.append("nombre", nombre);
-    fd.append("telefono", telefono);
+    fd.append("telefono", "+569" + telefono);
     fd.append("numeros", numerosSeleccionados.join(","));
 
     startTransition(async () => {
@@ -103,18 +103,24 @@ export default function FormRegistro({ numerosDisponibles, participantes }: Prop
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
             <div className="flex gap-2">
-              <input
-                type="tel"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                placeholder="Ej: +56912345678"
-                className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
-                required
-              />
+              <div className="flex flex-1 border rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-rose-300">
+                <span className="px-3 py-2 bg-gray-100 text-gray-500 text-sm font-medium border-r select-none flex items-center">
+                  +569
+                </span>
+                <input
+                  type="tel"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value.replace(/\D/g, "").slice(0, 8))}
+                  placeholder="12345678"
+                  maxLength={8}
+                  className="flex-1 px-3 py-2 text-sm text-gray-900 focus:outline-none bg-white"
+                  required
+                />
+              </div>
               <button
                 type="button"
                 onClick={buscarTelefono}
-                disabled={!telefono || isPending}
+                disabled={telefono.length < 8 || isPending}
                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
               >
                 Buscar
@@ -131,7 +137,7 @@ export default function FormRegistro({ numerosDisponibles, participantes }: Prop
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Nombre completo"
               disabled={!!participanteExistente}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 disabled:bg-gray-50 disabled:text-gray-500"
+              className="w-full border rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-300 disabled:bg-gray-50 disabled:text-gray-500"
               required
             />
           </div>
