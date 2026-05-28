@@ -22,15 +22,15 @@ export type ResultadoSorteo = {
 };
 
 export const PREMIOS = [
-  { nivel: 1, nombre: "Plumón de cama dos plazas" },
   { nivel: 1, nombre: "Juguera" },
-  { nivel: 1, nombre: "Teclado + mouse" },
+  { nivel: 1, nombre: "Hervidor" },
+  { nivel: 1, nombre: "Plumón de cama dos plazas" },
   { nivel: 2, nombre: "Minipimer" },
-  { nivel: 2, nombre: "Hervidor" },
+  { nivel: 2, nombre: "Teclado + mouse" },
   { nivel: 2, nombre: "Juego de joyas" },
   { nivel: 3, nombre: "Mini ventilador" },
-  { nivel: 3, nombre: "Pantuflas" },
   { nivel: 3, nombre: "Bolsito para el frasquito de agua" },
+  { nivel: 3, nombre: "Pantuflas" },
 ];
 
 export async function getNumeros(): Promise<Numero[]> {
