@@ -15,7 +15,15 @@
       "PowerShell(iwr https://get.tur.so/install.ps1 -useb | iex 2>&1)",
       "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\); turso --version 2>&1)",
       "PowerShell($url = \"https://github.com/tursodatabase/turso-cli/releases/latest/download/turso_windows_amd64.zip\"; $out = \"$env:TEMP\\\\turso.zip\"; Invoke-WebRequest $url -OutFile $out; Expand-Archive $out -DestinationPath \"$env:TEMP\\\\turso\" -Force; Copy-Item \"$env:TEMP\\\\turso\\\\turso.exe\" \"$env:USERPROFILE\\\\.local\\\\bin\\\\turso.exe\" -Force -ErrorAction SilentlyContinue; Copy-Item \"$env:TEMP\\\\turso\\\\turso.exe\" \"C:\\\\Windows\\\\System32\\\\turso.exe\" -Force -ErrorAction SilentlyContinue; Get-Item \"$env:TEMP\\\\turso\\\\turso.exe\" 2>&1)",
-      "Bash(gh pr *)"
+      "Bash(gh pr *)",
+      "Bash(curl -fsSL \"https://github.com/tursodatabase/turso-cli/releases/download/v1.0.26/turso-cli_Linux_x86_64.tar.gz\" -o /tmp/turso.tar.gz)",
+      "Bash(tar -xzf /tmp/turso.tar.gz -C /tmp)",
+      "Bash(chmod +x /tmp/turso)",
+      "Bash(/tmp/turso --version)",
+      "Bash(vercel integration *)",
+      "Bash(vercel env *)",
+      "Bash(npm install *)",
+      "Bash(npm uninstall *)"
     ]
   }
 }
