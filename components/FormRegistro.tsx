@@ -142,7 +142,7 @@ export default function FormRegistro({ numerosDisponibles, participantes }: Prop
               Números ({disponibles.length} disponibles) — seleccionados:{" "}
               <span className="text-rose-600 font-bold">{numerosSeleccionados.join(", ") || "ninguno"}</span>
             </label>
-            <div className="grid grid-cols-10 gap-1 max-h-56 overflow-y-auto border rounded-lg p-2 bg-gray-50">
+            <div className="grid grid-cols-5 sm:grid-cols-10 gap-1 max-h-56 overflow-y-auto border rounded-lg p-2 bg-gray-50">
               {Array.from({ length: 100 }, (_, i) => i + 1).map((n) => {
                 const estaDisponible = disponibles.some((d) => d.numero === n);
                 const seleccionado = numerosSeleccionados.includes(n);
